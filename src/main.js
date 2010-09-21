@@ -73,7 +73,13 @@ var defaults = {
 	//selectable: false,
 	unselectAuto: true,
 	
-	dropAccept: '*'
+	dropAccept: '*',
+	
+	//month bigins this date
+	startMonthDate: 1,
+	
+    //show month number at first day Slot
+    showMonthNumFirstDay: false,
 	
 };
 

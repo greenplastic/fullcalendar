@@ -15,8 +15,9 @@ views.month = function(element, options, viewName) {
 			}
 			// start/end
 			var start = this.start = cloneDate(date, true);
-			start.setDate(1);
-			this.end = addMonths(cloneDate(start), 1);
+			var startMonthDate = options.startMonthDate;
+			start.setDate(startMonthDate);
+			this.end = addMonths(addDays(cloneDate(start), -1), 1);
 			// visStart/visEnd
 			var visStart = this.visStart = cloneDate(start),
 				visEnd = this.visEnd = cloneDate(this.end),
@@ -191,15 +192,16 @@ function Grid(element, options, methods, viewName) {
 			for (i=0; i<rowCnt; i++) {
 				s += "<tr class='fc-week" + i + "'>";
 				for (j=0; j<colCnt; j++) {
+					var date = (d.getDate() == 1 && options.showMonthNumFirstDay) ? d.getMonth()+1 + "/" + d.getDate() : d.getDate();
 					s += "<td class='fc-" +
 						dayIDs[d.getDay()] + ' ' + // needs to be first
 						tm + '-state-default fc-day' + (i*colCnt+j) +
 						(j==dit ? ' fc-leftmost' : '') +
-						(rowCnt>1 && d.getMonth() != month ? ' fc-other-month' : '') +
+						(rowCnt>1 && (d < this.start) || (d > this.end) ? ' fc-other-month' : '') +
 						(+d == +today ?
 						' fc-today '+tm+'-state-highlight' :
 						' fc-not-today') + "'>" +
-						(showNumbers ? "<div class='fc-day-number'>" + d.getDate() + "</div>" : '') +
+						(showNumbers ? "<div class='fc-day-number'>" + date + "</div>" : '') +
 						"<div class='fc-day-content'><div style='position:relative'>&nbsp;</div></div></td>";
 					addDays(d, 1);
 					if (nwe) {
@@ -249,10 +251,10 @@ function Grid(element, options, methods, viewName) {
 			tbody.find('td').each(function() {
 				var td = $(this);
 				if (rowCnt > 1) {
-					if (d.getMonth() == month) {
-						td.removeClass('fc-other-month');
-					}else{
+					if ((d < view.start) || (d > view.end)) {
 						td.addClass('fc-other-month');
+					}else{
+						td.removeClass('fc-other-month');
 					}
 				}
 				if (+d == +today) {
@@ -264,7 +266,8 @@ function Grid(element, options, methods, viewName) {
 						.removeClass('fc-today')
 						.removeClass(tm + '-state-highlight');
 				}
-				td.find('div.fc-day-number').text(d.getDate());
+				var date = (d.getDate() == 1 && options.showMonthNumFirstDay) ? d.getMonth()+1 + "/" + d.getDate() : d.getDate();
+				td.find('div.fc-day-number').text(date);
 				addDays(d, 1);
 				if (nwe) {
 					skipWeekend(d);
